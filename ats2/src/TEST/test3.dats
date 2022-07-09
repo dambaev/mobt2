@@ -3,32 +3,7 @@
 #define ATS_DYNLOADFLAG 0
 
 #define LIBS_targetloc "../libs" (* search path for external libs *)
-//#include "{$LIBS}/ats-bytestring/HATS/bytestring.hats"
 staload UN="prelude/SATS/unsafe.sats"
-
-
-fun from( n: int, step: int): stream_vt( int) = $ldelay( stream_vt_cons( n, from( n+step, step)))
-fun from1( n: int, step: int):<!laz> stream( int) = $delay( stream_cons( n, from1( n+step, step)))
-
-fun
-  sieve
-  ( ns: stream_vt( int)
-  ): stream_vt( int) = $ldelay
-  (
-    let
-      val ns_con = !ns
-      val-@stream_vt_cons(n0, ns1) = ns_con
-      val n0_val = n0
-      val ns1_val = ns1
-      val () = ns1 := sieve( stream_vt_filter_cloptr<int>( ns1_val, lam x=> x mod n0_val > 0))
-      prval () = fold@(ns_con)
-    in
-     ns_con
-    end
-  ,
-    ~ns
-  )
-
 
 fun
   {a:t0p}
@@ -85,47 +60,6 @@ fun
   )
 }
 
-fun
-  {a:t0p}
-  stream_take_while
-  ( xs: stream( INV(a))
-  , pred: (a) -<cloref1> bool
-  ):<cloref1>
-  stream( a) = auxmain( xs, pred) where
-{
-  fun
-  auxmain
-  ( xs: stream(a)
-  , pred: (a) -<cloref1> bool
-  ) : stream(a) = $delay
-  (
-    auxmain_con(xs, pred)
-  )
-  and
-  auxmain_con
-  ( xs: stream(a)
-  , pred: (a) -<cloref1> bool
-  ) : stream_con(a) =
-  (
-  let
-    val xs_con = !xs
-  in
-  case+ xs_con of
-  | stream_nil() => stream_nil()
-  | @stream_cons(x0, xs1) =>
-    let
-      val test = pred(x0)
-    in
-      if test
-        then xs_con where {
-          val () = xs1 := auxmain_con(xs1, pred)
-        }
-        else stream_nil()
-    end
-  end
-  )
-}
-
 fn isPrime( x:int, primes: !stream(int)): bool = loop( primes) where {
   fun
     loop
@@ -158,8 +92,7 @@ fn primes(): stream(int) = result where {
     , primes: !stream(int)
     ): stream_con(int) =
   if isPrime( from, primes)
-  then stream_cons( from, $delay( loop( from + step, step, primes))) where {
-  }
+  then stream_cons( from, $delay( loop( from + step, step, primes)))
   else loop( from + step, step, primes)
   val rec result = $delay (stream_cons( 2, $delay (stream_cons( 3, $delay( loop( 5, 2, result))))))
 }

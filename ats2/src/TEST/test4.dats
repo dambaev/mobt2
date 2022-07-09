@@ -128,77 +128,6 @@ fun
   )
 }
 
-/*
-fn isPrime( x:int, primes: !stream(int)): bool = loop( primes) where {
-  fun
-    loop
-    ( xs: !stream(int)
-    ): bool =
-  let
-    val xs_con = !xs
-  in
-    case+ xs_con of
-    | stream_nil() => true
-    | stream_cons( x0, xs1) =>
-      let
-        val x0pow2 = g0int_npow( x0, 2)
-      in
-        if x0pow2 > x
-        then true
-        else
-          if (x mod x0) = 0
-          then false
-          else loop( xs1)
-      end
-  end
-}
-*/
-
-/*
-fn
-  isPrime
-  ( primes: stream_vt(int)
-  , x: int
-  ):
-  (stream_vt(int), bool) = (primes, result) where {
-  fun
-    loop
-    ( xs: stream_vt(int)
-    , result: &bool? >> bool
-    ): stream_vt_con(int) =
-  let
-    val xs_con = !xs
-  in
-    case+ xs_con of
-    | ~stream_vt_nil() => stream_vt_nil() where {
-      val () = result := true
-    }
-    | @stream_vt_cons( x0, xs1) =>
-      let
-        val x0pow2 = g0int_npow( x0, 2)
-      in
-        if x0pow2 > x
-        then xs_con where {
-          val () = result := false
-          val () = xs1 := xs1
-          prval () = fold@(xs_con)
-        }
-        else
-          if (x mod x0) = 0
-          then xs_con where {
-            val () = result := false
-            prval () = fold@(xs_con)
-          }
-          else xs_con where {
-            val () = xs1 := loop( xs1, result)
-            prval () = fold@(xs_con)
-          }
-      end
-  end
-  var result: bool?
-  val primes = loop( primes, result)
-}
-*/
 
 fun
   isPrime
@@ -232,26 +161,6 @@ fun
     val () = primes := $ldelay tmp
     prval _ = $showtype tmp
   }
-    /*
-    let
-      val () = println!("isPrime: ", x0)
-      val x0pow2 = g0int_npow( x0, 2)
-    in
-      if x0pow2 > x
-      then true where {
-          val () = primes := xs_con
-      }
-      else
-        if (x mod x0) = 0
-        then false where {
-          val () = primes := xs_con
-        }
-        else auxmain_con(xs1, x, hole) where {
-          val () = primes := $ldelay xs_con
-          val+stream_vt_cons(_, hole) = !primes
-        }
-    end
-    */
   end
   )
   val result = auxmain_con( xs, x, primes1)

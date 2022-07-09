@@ -3,12 +3,10 @@
 #define ATS_DYNLOADFLAG 0
 
 #define LIBS_targetloc "../libs" (* search path for external libs *)
-//#include "{$LIBS}/ats-bytestring/HATS/bytestring.hats"
 staload UN="prelude/SATS/unsafe.sats"
 
 
-fun from( n: int, step: int): stream_vt( int) = $ldelay( stream_vt_cons( n, from( n+step, step)))
-fun from1( n: int, step: int):<!laz> stream( int) = $delay( stream_cons( n, from1( n+step, step)))
+fun from( n: int, step: int):<!laz> stream_vt( int) = $ldelay( stream_vt_cons( n, from( n+step, step)))
 
 fun
   sieve
@@ -28,7 +26,6 @@ fun
   ,
     ~ns
   )
-
 
 fun
   {a:t0p}
@@ -151,40 +148,6 @@ fn isPrime( x:int, primes: !stream(int)): bool = loop( primes) where {
       end
   end
 }
-
-/*
-fn isPrime( primes: !stream_vt(int), x: int): bool = result where {
-  fun
-    loop
-    ( xs: !stream_vt(int)
-    ): bool =
-  let
-    val xs_con = !xs
-  in
-    case+ xs_con of
-    | ~stream_vt_nil() => true where {
-      val () = xs := $ldelay( stream_vt_nil())
-    }
-    | @stream_vt_cons( x0, xs1) =>
-      let
-        val x0pow2 = g0int_npow( x0, 2)
-      in
-        if x0pow2 > x
-        then true where {
-          val () = xs1 := $ldelay( xs_con)
-          val () = fold@(xs_con)
-        }
-        else
-          if (x mod x0) = 0
-          then false
-          else loop( xs1)
-      end
-  end
-  val result = loop( primes)
-}
-*/
-
-//val rec primes: stream(int) = $delay (stream_cons( 2, $delay (stream_cons( 3, stream_filter_fun<int>( from1( 5, 2), lam x =<fun> $effmask{1} isPrime(primes, x))))))
 
 fn primes(): stream(int) = result where {
   fun
