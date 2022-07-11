@@ -5,6 +5,7 @@ stdenv.mkDerivation {
   src = ./. ;
   buildInputs = with pkgs;
   [ ats2
+    boehmgc
   ];
 
 }
