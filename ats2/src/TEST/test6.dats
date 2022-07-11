@@ -74,26 +74,24 @@ let
     loop
     {n:nat}
     ( x: int
-    , cnt: int
     , xs: !list_vt(int, n)
     ):
     #[ret:bool]
-    (bool(ret), int) =
+    bool(ret) =
   case+ xs of
-  | list_vt_nil() => (true, cnt) where {
-  }
+  | list_vt_nil() => true
   | list_vt_cons( x0, xs1) =>
     let
       val x0pow2 = g0int_npow( x0, 2)
     in
       if x0pow2 > x
-      then (true, cnt)
+      then true
       else
         if (x mod x0) = 0
-        then (false, cnt)
-        else loop( x, cnt+1, xs1)
+        then false
+        else loop( x, xs1)
     end
-  val (result, cnt) = loop( x, 0, primes)
+  val result = loop( x, primes)
 in
   if result
   then result where {
@@ -105,10 +103,7 @@ in
   }
 end
 
-fn primes(): stream_vt(int) = auxmain( numbers, list_vt_nil() ) where {
-  val numbers = $ldelay (stream_vt_cons( 2, $ldelay (stream_vt_cons( 3, from( 5, 2))))) where {
-    fun from( start: int, step: int): stream_vt(int) = $ldelay( stream_vt_cons( start, from( start+step, step)))
-  }
+fn primes(): stream_vt(int) = $ldelay( stream_vt_cons( 2, auxmain( 3, 2, list_vt_cons( 2, list_vt_nil())))) where {
   fun
     auxmain
     {n:nat}
@@ -141,7 +136,7 @@ fn primes(): stream_vt(int) = auxmain( numbers, list_vt_nil() ) where {
 }
 
 implement main0() = () where {
-  val pow2_24 = 100; // g0int_npow( 2, 24)
+  val pow2_24 = 1000000; //g0int_npow( 2, 24)
   val primes = primes()
   val thePrimes = stream_vt_take_while( primes, lam x => x <= pow2_24 )
   val () = println!( stream_vt_length( thePrimes))
