@@ -3,6 +3,7 @@
 #define ATS_DYNLOADFLAG 0
 
 #define LIBS_targetloc "../libs" (* search path for external libs *)
+staload "{$LIBS}/result/src/SATS/result.sats"
 staload UN="prelude/SATS/unsafe.sats"
 
 fun
@@ -64,9 +65,10 @@ fn
   isPrime
   {n:nat}
   ( x:int
-  , primes: !list_vt(int, n)
+  , primes: &list_vt(int, n) >> result_vtb( ret, list_vt(int, n+1), list_vt(int, n))
   ):
-  bool =
+  #[ret:bool]
+  bool(ret) =
 let
   fun
     loop
@@ -93,73 +95,53 @@ let
     end
   val (result, cnt) = loop( x, 0, primes)
 in
-  result
+  if result
+  then result where {
+    val () = primes := list_vt_extend( primes, x)
+    prval () = result_vt_success( primes)
+  }
+  else result where {
+    prval () = result_vt_failure( primes)
+  }
 end
 
-fn primes(): stream_vt(int) = result where {
-  var tail: list_vt(int, 0)?
-  val () = tail := list_vt_nil()
-  var initial: list_vt(int,1)
-  val () = initial := (list_vt_cons( 2, tail):list_vt(int,1))
+fn primes(): stream_vt(int) = auxmain( numbers, list_vt_nil() ) where {
   val numbers = $ldelay (stream_vt_cons( 2, $ldelay (stream_vt_cons( 3, from( 5, 2))))) where {
     fun from( start: int, step: int): stream_vt(int) = $ldelay( stream_vt_cons( start, from( start+step, step)))
   }
   fun
     auxmain
     {n:nat}
-    ( xs: stream_vt( int)
+    ( from: int
+    , step: int
     , evaluatedPrimes: list_vt(int,n)
-    , tail: &ptr? >> List_vt(int)
     ): stream_vt(int) = $ldelay
-  ( let
-      prval _ = $showtype view@ tail
-    in
-      auxmain_con( xs, evaluatedPrimes, tail)
-    end
-  , {
-    val () = ~xs
-    val () = list_vt_free evaluatedPrimes
-    val _ = tail
-  }
+  ( auxmain_con( from, step, evaluatedPrimes)
+  , list_vt_free evaluatedPrimes
   )
   and
     auxmain_con
     {n:nat}
-    ( xs: stream_vt(int)
+    ( from: int
+    , step: int
     , evaluatedPrimes: list_vt(int,n)
-    , tail: &ptr? >> List_vt(int)
     ): stream_vt_con(int) =
   let
-    val xs_con = !xs
+    var vprimes = evaluatedPrimes
+    val is_prime = isPrime( from, vprimes)
   in
-    case+ xs_con of
-    | stream_vt_nil() => xs_con where {
-      val () = list_vt_free evaluatedPrimes
+    if is_prime
+    then stream_vt_cons( from, auxmain( from + step, step, vprimes)) where {
+      prval () = result_vt_unsuccess( vprimes)
     }
-    | @stream_vt_cons( x0, xs1) =>
-    let
-      var vprimes = evaluatedPrimes
-      val is_prime = isPrime( x0, vprimes)
-    in
-      if is_prime
-      then xs_con where {
-        var newtail: ptr
-        val ~list_vt_nil() = tail
-        val () = tail := list_vt_cons( x0, newtail)
-        val () = xs1 := auxmain( xs1, vprimes, newtail)
-        prval _ = fold@( xs_con)
-      }
-      else auxmain_con( xs1, vprimes, tail) where {
-        val xs1 = xs1
-        val () = free@ xs_con
-      }
-    end
+    else auxmain_con( from+step, step, vprimes) where {
+      prval () = result_vt_unfailure( vprimes)
+    }
   end
-  val result = auxmain( numbers, initial, tail )
 }
 
 implement main0() = () where {
-  val pow2_24 = 10000; // g0int_npow( 2, 24)
+  val pow2_24 = 100; // g0int_npow( 2, 24)
   val primes = primes()
   val thePrimes = stream_vt_take_while( primes, lam x => x <= pow2_24 )
   val () = println!( stream_vt_length( thePrimes))
