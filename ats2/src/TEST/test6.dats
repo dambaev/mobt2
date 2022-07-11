@@ -136,7 +136,7 @@ fn primes(): stream_vt(int) = $ldelay( stream_vt_cons( 2, auxmain( 3, 2, list_vt
 }
 
 implement main0() = () where {
-  val pow2_24 = 1000000; //g0int_npow( 2, 24)
+  val pow2_24 = g0int_npow( 2, 24)
   val primes = primes()
   val thePrimes = stream_vt_take_while( primes, lam x => x <= pow2_24 )
   val () = println!( stream_vt_length( thePrimes))
