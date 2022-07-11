@@ -46,18 +46,30 @@ cleanall::
 
 
 test: \
+    test6 \
+    test5 \
+    test4 \
 		test3 \
-		test1 \
-		test2
+    test1_gc \
+		test1
 
-test4: $(ATS_OBJS) TEST/test4.dats
+test6: $(ATS_OBJS) TEST/test6.dats
 	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
+	$(shell which time) ./$@
+test5: $(ATS_OBJS) TEST/test5.dats
+	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
+	$(shell which time) ./$@
+test4: $(ATS_OBJS) TEST/test4.dats
+	$(ATSCC) -O2 -DATS_MEMALLOC_GCBDW -lgc -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
 	$(shell which time) ./$@
 test3: $(ATS_OBJS) TEST/test3.dats
 	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
 	$(shell which time) ./$@
 test2: $(ATS_OBJS) TEST/test2.dats
 	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
+	$(shell which time) ./$@
+test1_gc: $(ATS_OBJS) TEST/test1.dats
+	$(ATSCC) -O2 -DATS_MEMALLOC_GCBDW -lgc -o $@ $(ATS_OBJS) TEST/test1.dats $(ATSLIBS)
 	$(shell which time) ./$@
 test1: $(ATS_OBJS) TEST/test1.dats
 	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
