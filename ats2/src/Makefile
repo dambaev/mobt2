@@ -47,7 +47,6 @@ cleanall::
 
 test: \
     test7 \
-    test5 \
     test4 \
 		test3 \
     test1_gc \
