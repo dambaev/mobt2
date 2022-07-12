@@ -80,8 +80,7 @@ fn primes(): stream(int) = result where {
     , primes: !stream(int)
     ): stream_con(int) =
   if isPrime( from, primes)
-  then stream_cons( from, $delay( loop( from + step, step, primes))) where {
-  }
+  then stream_cons( from, $delay( loop( from + step, step, primes)))
   else loop( from + step, step, primes)
   val rec result = $delay (stream_cons( 2, $delay (stream_cons( 3, $delay( loop( 5, 2, result))))))
 }
