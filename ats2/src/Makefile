@@ -46,12 +46,16 @@ cleanall::
 
 
 test: \
+    test8 \
     test7 \
     test4 \
 		test3 \
     test1_gc \
 		test1
 
+test8: $(ATS_OBJS) TEST/test8.dats
+	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
+	$(shell which time) ./$@
 test7: $(ATS_OBJS) TEST/test7.dats
 	$(ATSCC) $(ATSCCFLAGS) -o $@ $(ATS_OBJS) TEST/$@.dats $(ATSLIBS)
 	$(shell which time) ./$@
